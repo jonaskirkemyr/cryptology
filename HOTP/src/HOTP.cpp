@@ -4,7 +4,7 @@
 * Dynamic Truncation
 * truncates string to a string of length 'length' with base 16 (hex)
 */
-void HOTP::truncation(char *& result,char *& str,int length)
+void HOTP::truncation(unsigned char *& result,char *& str,int length)
 {
 	char *str_p=str;
 
@@ -31,13 +31,34 @@ int HOTP::computeBinCode(int offset)
 
 
 
-
 void HOTP::setLength(int l)
 {
 	length=l;
 }
 
+HOTP::HOTP(char *shastr,int length,int trunc)
+{
+	this->shastr=shastr;
+	
+	setLength(length);
+	resultLength=trunc;
+
+	hmac_result=new unsigned char[resultLength];
+}
+
+
 int HOTP::getLength()
 {
 	return length;
+}
+
+/**
+* Computes the HOTP code 
+*/
+int HOTP::getCode()
+{
+	truncation(hmac_result,shastr,resultLength);
+	int binCode=computeBinCode(computeOffset());
+	
+	return binCode%_Pow_int(10,6);
 }
