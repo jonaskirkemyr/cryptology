@@ -110,13 +110,13 @@ int OTP::getCode()
 	return binCode%_Pow_int(10,6);
 }
 
-void OTP::setHmac(unsigned char *hmac)
+void OTP::setHmac(unsigned char *hmac,int length)
 {
 	if(this->hmac_result!=nullptr)//check if data is added to hmac before adding new data
 		freeHmac();
 
-	resultLength=strlen((char*)hmac);
-	//resultLength=sizeof(hmac);
+	resultLength=length;
+
 	hmac_result=new unsigned char[resultLength];
 
 	for(int i=0;i<resultLength;++i)//copy hmac->hmac_result

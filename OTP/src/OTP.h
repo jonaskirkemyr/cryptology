@@ -20,7 +20,7 @@ class OTP
 		void freeHmac();//delete hmac_result
 
 	protected:
-		void setHmac(unsigned char *);//hmac
+		void setHmac(unsigned char *,int);//hmac
 		void setShaStr(char*,int=20);//shastring, sha length
 
 	public:
