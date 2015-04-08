@@ -1,6 +1,5 @@
 #include "HOTP.h"
-#include <iostream>
-#include <iomanip>
+
 /**
 * Converts a 64bit int to char
 */
