@@ -70,6 +70,14 @@ void HOTP::init(unsigned char * secret,int secretLength,int64_t c)
 	this->secret[this->secretLength]='\0';//end with closing char
 }
 
+/**
+* Increases the counter after use
+*/
+void HOTP::increaseCount()
+{
+	this->counter++;
+}
+
 
 
 
@@ -167,5 +175,6 @@ int HOTP::getCode()
 	if(this->getLength()==0)
 		throw "Length of one-time password not set";
 	this->setHmac(this->generateHmac(),this->algoLength);
-	OTP::getCode();
+	increaseCount();//increase counter
+	return OTP::getCode();
 }

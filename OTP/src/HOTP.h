@@ -27,6 +27,8 @@ class HOTP: public OTP
 		unsigned char * generateHmac();//generates a hmac with chosen algorithm
 		void init(unsigned char*,int,int64_t);//init obj
 
+		void increaseCount();
+
 	public:
 		HOTP(unsigned char*,int,int64_t=0);//set counter
 		HOTP(unsigned char*,int,int64_t,int,const EVP_MD*algo=EVP_sha1());
