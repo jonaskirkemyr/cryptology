@@ -1,5 +1,6 @@
 #include "HOTP.h"
-
+#include <iostream>
+#include <iomanip>
 /**
 * Converts a 64bit int to char
 */
@@ -50,7 +51,7 @@ unsigned char * HOTP::generateHmac(const EVP_MD* algo)
 void HOTP::initOTP(int codeLength)
 {
 	this->setLength(codeLength);
-	this->setHmac(this->generateHmac());
+	this->setHmac(this->generateHmac(),20);
 }
 
 
