@@ -32,6 +32,7 @@ class HOTP: public OTP
 	public:
 		HOTP(unsigned char*,int,int64_t=0);//set counter
 		HOTP(unsigned char*,int,int64_t,int,const EVP_MD*algo=EVP_sha1());
+		virtual ~HOTP();
 		
 		int64_t getCounter();
 		void setCounter(int64_t);

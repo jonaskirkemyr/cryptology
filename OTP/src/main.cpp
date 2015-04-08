@@ -32,7 +32,7 @@ int main()
 	cout<<dec<<otp1.getCode()<<endl;
 	cout<<"END TEST HEXADECIMAL:"<<endl<<endl;
 
-
+	
 
 	//TEST CONSTRUCTOR - NEED TO SPECIFY ALGO AND OTP LENGTH
 	cout<<"TEST SPECIFIED ALGO AND LENGTH:"<<endl;
@@ -68,7 +68,7 @@ int main()
 		cout<<e<<endl;
 	}
 	cout<<"END TEST ALL INPUT:"<<endl<<endl;
-
+	
 
 	
 	//TEST RFC4226 DATA (Appendix D [http://www.ietf.org/rfc/rfc4226.txt])
@@ -99,7 +99,6 @@ int main()
 	cout<<"END TEST RFC4226"<<endl<<endl;
 
 
-	cin.get();
 	return 0;
 }
 

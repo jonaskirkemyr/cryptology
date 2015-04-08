@@ -142,7 +142,6 @@ OTP::OTP(unsigned char* hmac,int length,int trunc)
 	hmac_result=new unsigned char[resultLength];
 	for(int i=0;i<this->resultLength;++i)
 		this->hmac_result[i]=hmac[i];
-	this->hmac_result[this->resultLength]='\0';
 }
 
 OTP::OTP()

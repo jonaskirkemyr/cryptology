@@ -42,6 +42,7 @@ int64_t HOTP::toInt(const char*& number)
 /**
 * Generates a HMAC-ALGORITHM by set secret
 * and counter
+* @TODO FREE toChar!
 */
 unsigned char * HOTP::generateHmac()
 {
@@ -67,7 +68,6 @@ void HOTP::init(unsigned char * secret,int secretLength,int64_t c)
 
 	for(int i=0;i<this->secretLength;++i)//copy secret to local var
 		this->secret[i]=secret[i];
-	this->secret[this->secretLength]='\0';//end with closing char
 }
 
 /**
@@ -107,6 +107,12 @@ HOTP::HOTP(unsigned char * secret, int secretLength,int64_t c,int codeLength,con
 	this->init(secret,secretLength,c);
 	this->setAlgorithm(algo);
 	this->setLength(codeLength);
+}
+
+HOTP::~HOTP()
+{
+	delete[] secret;
+	secret=nullptr;
 }
 
 /**
