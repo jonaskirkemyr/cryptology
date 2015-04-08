@@ -10,22 +10,22 @@ class HOTP: public OTP
 {
 
 	private:
-		int64_t counter;
-		unsigned char * secret;
-		int secretLength;
+		static const int COUNTER_LENGTH=8;
 
-
-		const unsigned char* toChar(int64_t) const;
-		int64_t toInt(const char*&);
-
-		unsigned char * generateHmac();
-		void initOTP(int=6);
+		int64_t counter;//counter for HOTP (used as key with hmac)
+		unsigned char * secret;//secret to use with hmac
+		int secretLength;//length of secret
 
 		const EVP_MD *algo;//algorithm to use for hmac
 		int algoLength;//output length of algorithm used
 
 
-		void setSecretAndCount(unsigned char*,int,int64_t);
+		/** FUNCTIONS**/
+		const unsigned char* toChar(int64_t) const;//get byte representation of int
+		int64_t toInt(const char*&);//get int representation of char
+
+		unsigned char * generateHmac();//generates a hmac with chosen algorithm
+		void init(unsigned char*,int,int64_t);//init obj
 
 	public:
 		HOTP(unsigned char*,int,int64_t=0);//set counter
@@ -39,7 +39,7 @@ class HOTP: public OTP
 
 		void setAlgorithm(const EVP_MD*);//set algorithm
 
-
+		virtual int getCode();
 };
 
 #endif

@@ -5,12 +5,12 @@
 */
 const unsigned char * HOTP::toChar(int64_t number) const
 {
-	unsigned char *temp=new unsigned char[8];//8bytes (64bit)
+	unsigned char *temp=new unsigned char[COUNTER_LENGTH];//8bytes (64bit)
 
-	for(int i=8-1;i>=0;--i)//loop through number and copy to char
+	for(int i=COUNTER_LENGTH-1;i>=0;--i)//loop through number and copy to char
 	{
 		temp[i]=(number&0xff);
-		number>>=8;
+		number>>=COUNTER_LENGTH;
 	}
 	return temp;
 }
@@ -32,64 +32,68 @@ int64_t HOTP::toInt(const char*& number)
 		(((int64_t)number[7])	  & 0x00000000000000ffU);
 }
 
-
+/**
+* Generates a HMAC-ALGORITHM by set secret
+* and counter
+*/
 unsigned char * HOTP::generateHmac()
 {
 	return HMAC(this->algo,
 				this->secret,//shared secret
 				this->secretLength,//length of secret
 				this->toChar(this->counter),//counter to char
-				8,//length of counter (8bytes)
+				COUNTER_LENGTH,//length of counter (8bytes)
 				0,0);//don't copy to any vars
 }
 
 /**
-* Set length of one time password, and generates a HMAC-SHA-1 
-* from input secret and counter
+* init HOTP vars and copy set vars to local variables
 */
-void HOTP::initOTP(int codeLength)
+void HOTP::init(unsigned char * secret,int secretLength,int64_t c)
 {
-	this->setLength(codeLength);
-	this->setHmac(this->generateHmac(),this->algoLength);
-}
+	this->algoLength=0;
 
-void HOTP::setSecretAndCount(unsigned char * secret,int secretLength,int64_t c)
-{
 	this->counter=c;
 	this->secretLength=secretLength;
 	
 	this->secret=new unsigned char[this->secretLength];
 
-	for(int i=0;i<this->secretLength;++i)
+	for(int i=0;i<this->secretLength;++i)//copy secret to local var
 		this->secret[i]=secret[i];
-	this->secret[this->secretLength]='\0';
+	this->secret[this->secretLength]='\0';//end with closing char
 }
 
-
+/**
+* set secret and counter for HOTP. 
+* Algorithm and OTP length needs to be set
+* before OTP code can be retrieved!
+*/
 HOTP::HOTP(unsigned char * secret,int secretLength,int64_t c) : OTP()
 {
-	this->setSecretAndCount(secret,secretLength,c);
+	this->init(secret,secretLength,c);
 }
 
+/**
+* Constructor for all needed input to use HOTP
+*/
 HOTP::HOTP(unsigned char * secret, int secretLength,int64_t c,int codeLength,const EVP_MD*algo) : OTP()
 {
-	this->setSecretAndCount(secret,secretLength,c);
-	this->initHOTP(codeLength,algo);
-}
-
-
-void HOTP::initHOTP(int codeLength,const EVP_MD *algo)
-{
+	this->init(secret,secretLength,c);
 	this->setAlgorithm(algo);
-	this->initOTP(codeLength);
+	this->setLength(codeLength);
 }
 
-
+/**
+* returns counter registered for HOTP
+*/
 int64_t HOTP::getCounter()
 {
 	return this->counter;
 }
 
+/**
+* Get current counter for HOTP
+*/
 void HOTP::setCounter(int64_t c)
 {
 	this->counter=c;
@@ -132,4 +136,18 @@ void HOTP::setAlgorithm(const EVP_MD* algo)
 			this->algo=EVP_sha1();
 		break;
 	}
+}
+
+/**
+* Generates a HMAC-SHA-1 
+* from input secret and counter
+*/
+int HOTP::getCode()
+{
+	if(this->algoLength==0)
+		throw "Algorithm need to be set";
+	if(this->getLength()==0)
+		throw "Length of one-time password not set";
+	this->setHmac(this->generateHmac(),this->algoLength);
+	OTP::getCode();
 }
