@@ -18,14 +18,26 @@ class HOTP: public OTP
 		const unsigned char* toChar(int64_t) const;
 		int64_t toInt(const char*&);
 
-		unsigned char * generateHmac(const EVP_MD*algo=EVP_sha1());
+		unsigned char * generateHmac();
 		void initOTP(int=6);
 
+		const EVP_MD *algo;//algorithm to use for hmac
+		int algoLength;//output length of algorithm used
+
+
+		void setSecretAndCount(unsigned char*,int,int64_t);
+
 	public:
-		HOTP(unsigned char*,int,int=6,int64_t=0);//set counter
+		HOTP(unsigned char*,int,int64_t=0);//set counter
+		HOTP(unsigned char*,int,int64_t,int,const EVP_MD*algo=EVP_sha1());
+		
+
+		void initHOTP(int=6,const EVP_MD*algo=EVP_sha1());//init HOTP
 
 		int64_t getCounter();
 		void setCounter(int64_t);
+
+		void setAlgorithm(const EVP_MD*);//set algorithm
 
 
 };

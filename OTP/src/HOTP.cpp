@@ -33,9 +33,9 @@ int64_t HOTP::toInt(const char*& number)
 }
 
 
-unsigned char * HOTP::generateHmac(const EVP_MD* algo)
+unsigned char * HOTP::generateHmac()
 {
-	return HMAC(algo,
+	return HMAC(this->algo,
 				this->secret,//shared secret
 				this->secretLength,//length of secret
 				this->toChar(this->counter),//counter to char
@@ -50,11 +50,10 @@ unsigned char * HOTP::generateHmac(const EVP_MD* algo)
 void HOTP::initOTP(int codeLength)
 {
 	this->setLength(codeLength);
-	this->setHmac(this->generateHmac(),20);
+	this->setHmac(this->generateHmac(),this->algoLength);
 }
 
-
-HOTP::HOTP(unsigned char * secret,int secretLength,int codeLength,int64_t c) : OTP()
+void HOTP::setSecretAndCount(unsigned char * secret,int secretLength,int64_t c)
 {
 	this->counter=c;
 	this->secretLength=secretLength;
@@ -64,8 +63,27 @@ HOTP::HOTP(unsigned char * secret,int secretLength,int codeLength,int64_t c) : O
 	for(int i=0;i<this->secretLength;++i)
 		this->secret[i]=secret[i];
 	this->secret[this->secretLength]='\0';
+}
+
+
+HOTP::HOTP(unsigned char * secret,int secretLength,int64_t c) : OTP()
+{
+	this->setSecretAndCount(secret,secretLength,c);
+}
+
+HOTP::HOTP(unsigned char * secret, int secretLength,int64_t c,int codeLength,const EVP_MD*algo) : OTP()
+{
+	this->setSecretAndCount(secret,secretLength,c);
+	this->initHOTP(codeLength,algo);
+}
+
+
+void HOTP::initHOTP(int codeLength,const EVP_MD *algo)
+{
+	this->setAlgorithm(algo);
 	this->initOTP(codeLength);
 }
+
 
 int64_t HOTP::getCounter()
 {
@@ -75,4 +93,43 @@ int64_t HOTP::getCounter()
 void HOTP::setCounter(int64_t c)
 {
 	this->counter=c;
+}
+
+/**
+* Sets the algorithm to use for HMAC.
+* The length of returned hmac is stored 
+* with each algorithm.
+* default is set as sha1. 
+* @param const EVP_MD*	algo	algorithm to use
+*/
+void HOTP::setAlgorithm(const EVP_MD* algo)
+{
+	switch(EVP_MD_type(algo))
+	{
+		case NID_sha224://224bits=28bytes
+			this->algoLength=28;
+			this->algo=EVP_sha224();
+		break;
+
+		case NID_sha256://256bits=32bytes
+			this->algoLength=32;
+			this->algo=EVP_sha256();
+		break;
+
+		case NID_sha384://384bits=48bytes
+			this->algoLength=48;
+			this->algo=EVP_sha384();
+		break;
+
+		case NID_sha512://512bits=64bytes
+			this->algoLength=64;
+			this->algo=EVP_sha512();
+		break;
+
+		case NID_sha1://160bits=20bytes
+		default:
+			this->algoLength=20;
+			this->algo=EVP_sha1();
+		break;
+	}
 }
