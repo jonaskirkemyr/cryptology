@@ -32,7 +32,7 @@ class OTP
 		void setLength(int);
 		int getLength();
 
-		int getCode();
+		virtual int getCode();
 
 };
 
