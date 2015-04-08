@@ -7,17 +7,19 @@
 class OTP
 {
 	private:
-		static void truncation(unsigned char *&, char *&,int=20);//truncated string, string to truncate, size of truncated string
-		
-		int computeOffset();
-		int computeBinCode(int);//offset
-
 		int length;//length of one-time password
 	
-		unsigned char *hmac_result;
-		int resultLength;
+		unsigned char *hmac_result;//hmac generated
+		int resultLength;//length of hmac
 
-		void freeHmac();//delete hmac_result
+
+		/** FUNCTIONS**/
+		static void truncation(unsigned char *&, char *&,int=20);//truncated string, string to truncate, size of truncated string
+		
+		int computeOffset();//compute offset of hmac
+		int computeBinCode(int);//offset
+
+		virtual void freeHmac();//delete hmac_result
 
 	protected:
 		void setHmac(unsigned char *,int);//hmac
@@ -29,10 +31,10 @@ class OTP
 		OTP();
 		virtual ~OTP();
 
-		void setLength(int);
-		int getLength();
+		void setLength(int);//set length of OTP
+		int getLength();//get length of OTP
 
-		virtual int getCode();
+		virtual int getCode();//generate and return OTP
 
 };
 
