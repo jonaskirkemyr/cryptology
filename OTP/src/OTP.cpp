@@ -188,6 +188,6 @@ int OTP::getCode()
 {
 	int binCode=computeBinCode(computeOffset());
 	
-	return binCode%_Pow_int(10,6);
+	return binCode%_Pow_int(10,this->length);
 }
 
