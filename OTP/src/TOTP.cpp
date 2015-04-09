@@ -76,6 +76,11 @@ TOTP::TOTP(unsigned char* secret,int secretLength,int codeLength,int timestep,co
 }
 
 
+TOTP::~TOTP()
+{
+
+}
+
 
 /**
 * Generates a HMAC-SHA-1 

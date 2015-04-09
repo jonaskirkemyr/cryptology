@@ -49,6 +49,7 @@ class TOTP : public HOTP
 		TOTP(int=30);//timestep
 		TOTP(unsigned char*,int,int=30);
 		TOTP(unsigned char*,int,int,int,const EVP_MD*algo=EVP_sha1());//secret,secretLength,codeLength,timestep,algo
+		virtual ~TOTP();
 
 		virtual int getCode();
 
