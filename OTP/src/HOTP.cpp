@@ -1,16 +1,24 @@
 #include "HOTP.h"
 
-//  .#####...#####...######..##..##...####...######..######.
-//  .##..##..##..##....##....##..##..##..##....##....##.....
-//  .#####...#####.....##....##..##..######....##....####...
-//  .##......##..##....##.....####...##..##....##....##.....
-//  .##......##..##..######....##....##..##....##....######.
-//  ........................................................
+/**
+* Increases the counter after use
+*/
+void HOTP::increaseCount()
+{
+	this->counter++;
+}
+
+//  .#####...#####....####...######..######...####...######..######..#####..
+//  .##..##..##..##..##..##....##....##......##..##....##....##......##..##.
+//  .#####...#####...##..##....##....####....##........##....####....##..##.
+//  .##......##..##..##..##....##....##......##..##....##....##......##..##.
+//  .##......##..##...####.....##....######...####.....##....######..#####..
+//  ........................................................................
 
 /**
 * Converts a 64bit int to char
 */
-const unsigned char * HOTP::toChar(int64_t number) const
+const unsigned char * HOTP::toChar(int64_t number)
 {
 	unsigned char *temp=new unsigned char[COUNTER_LENGTH];//8bytes (64bit)
 
@@ -40,21 +48,6 @@ int64_t HOTP::toInt(const char*& number)
 }
 
 /**
-* Generates a HMAC-ALGORITHM by set secret
-* and counter
-* @TODO FREE toChar!
-*/
-unsigned char * HOTP::generateHmac()
-{
-	return HMAC(this->algo,
-				this->secret,//shared secret
-				this->secretLength,//length of secret
-				this->toChar(this->counter),//counter to char
-				COUNTER_LENGTH,//length of counter (8bytes)
-				0,0);//don't copy to any vars
-}
-
-/**
 * init HOTP vars and copy set vars to local variables
 */
 void HOTP::init(unsigned char * secret,int secretLength,int64_t c)
@@ -71,14 +64,44 @@ void HOTP::init(unsigned char * secret,int secretLength,int64_t c)
 }
 
 /**
-* Increases the counter after use
+* Generates a HMAC-ALGORITHM by set secret
+* and counter
+* @TODO FREE toChar!
 */
-void HOTP::increaseCount()
+unsigned char * HOTP::generateHmac()
 {
-	this->counter++;
+	return HMAC(this->algo,
+				this->secret,//shared secret
+				this->secretLength,//length of secret
+				this->toChar(this->counter),//counter to char
+				COUNTER_LENGTH,//length of counter (8bytes)
+				0,0);//don't copy to any vars
 }
 
 
+/**
+* get length of algorithm output
+*/
+int HOTP::getAlgoLength()
+{
+	return this->algoLength;
+}
+
+/**
+* returns the secret as const pointer
+*/
+const unsigned char * HOTP::getSecret() const
+{
+	return this->secret;
+}
+
+/**
+* Returns length of secret
+*/
+int HOTP::getSecretLength()
+{
+	return this->secretLength;
+}
 
 
 //  .#####...##..##..#####...##......######...####..
@@ -107,6 +130,14 @@ HOTP::HOTP(unsigned char * secret, int secretLength,int64_t c,int codeLength,con
 	this->init(secret,secretLength,c);
 	this->setAlgorithm(algo);
 	this->setLength(codeLength);
+}
+
+HOTP::HOTP() : OTP()
+{
+	secretLength=0;
+	secret=nullptr;
+	counter=0;
+	algoLength=0;
 }
 
 HOTP::~HOTP()
@@ -180,7 +211,24 @@ int HOTP::getCode()
 		throw "Algorithm need to be set";
 	if(this->getLength()==0)
 		throw "Length of one-time password not set";
+	if(secret==nullptr)
+		throw "Secret not set";
+	if(this->getLength()==0)
+		throw "OTP length not set";
+
 	this->setHmac(this->generateHmac(),this->algoLength);
 	increaseCount();//increase counter
 	return OTP::getCode();
+}
+
+/**
+* Sets the secret to base HMAC on
+* If secret is already set, exception is thrown
+*/
+void HOTP::setSecret(unsigned char* secret,int secretLength)
+{
+	if(this->secret!=nullptr)
+		throw "Secret already set";
+
+	this->init(secret,secretLength,counter);
 }
